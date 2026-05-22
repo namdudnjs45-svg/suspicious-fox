@@ -5,10 +5,10 @@ import "./App.css";
 import { AdminReportsScreen } from "./components/AdminReportsScreen";
 import { DiaryComicQuiz } from "./components/DiaryComicQuiz";
 import { SituationMvpHub } from "./components/SituationMvpHub";
-import { DIARY_EPISODES, findDiaryEpisodeById } from "./data/diaryEpisodes";
+import { SCAM_EPISODES, findScamEpisodeById } from "./data/diaryEpisodes";
 
 /** 허브에서 고른 id가 에피소드와 일치하는지 런타임 확인합니다. */
-const PLAYABLE_IDS = new Set<string>(DIARY_EPISODES.map((e) => e.id));
+const PLAYABLE_IDS = new Set<string>(SCAM_EPISODES.map((e) => e.id));
 
 function isAdminHash(): boolean {
   const raw = window.location.hash.replace(/^#\/?/, "").split("/")[0] ?? "";
@@ -50,7 +50,7 @@ export default function App() {
       </main>
     );
   } else {
-    const episode = findDiaryEpisodeById(detailEpisodeId);
+    const episode = findScamEpisodeById(detailEpisodeId);
     body =
       episode === undefined ? (
         <main className="sf-screen sf-appFrame sf-mvpHubshell">
