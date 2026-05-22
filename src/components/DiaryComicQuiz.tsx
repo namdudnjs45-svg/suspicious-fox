@@ -3,7 +3,6 @@ import {
   type DiaryChatTurn,
   type DiaryComicSceneType,
   type DiaryEpisode,
-  type ResultEducationBlock,
   resolveDiaryComicPanelSrc,
   resolvePublicAssetUrl,
   withPreferredLineBreaks,
@@ -13,7 +12,7 @@ import { EpisodeFeedbackMiniCard } from "./EpisodeFeedbackMiniCard";
 const DEFAULT_QUIZ_STRIP_HINT = "흐름 읽으며, 걸리는 컷부터 골라요.";
 
 const CARD_TITLE_PICK = "내가 고른 순간";
-const CARD_TITLE_WHY = "왜 멈춰야 했나요?";
+const CARD_TITLE_WHY = "왜 문제인가";
 const CARD_TITLE_CHAT = "실제 대화 예시";
 const CARD_TITLE_PEER = "가까운 사람에게 말해보기";
 
@@ -26,19 +25,6 @@ function messengerTurnTime(ix: number): string {
   const pm = h24 >= 12;
   const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
   return `${pm ? "오후" : "오전"} ${h12}:${String(min).padStart(2, "0")}`;
-}
-
-function NarrativeEducationBlock({ block }: { block: ResultEducationBlock }) {
-  return (
-    <>
-      <p className="rc-keyLine">{withPreferredLineBreaks(block.keyLine)}</p>
-      {block.subLines.map((line, ix) => (
-        <p key={`sub-${ix}`} className="rc-subText">
-          {withPreferredLineBreaks(line)}
-        </p>
-      ))}
-    </>
-  );
 }
 
 function EducationMessengerThread({
@@ -466,14 +452,18 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
             <h4 id={`${baseId}-pick`} className="rc-blockTitle">
               {CARD_TITLE_PICK}
             </h4>
-            <NarrativeEducationBlock block={episode.resultPickMomentByCut[choice]} />
+            <p className="rc-keyLine">{withPreferredLineBreaks(episode.resultMomentOneLineByCut[choice])}</p>
           </section>
 
           <section className="rc-block" aria-labelledby={`${baseId}-why`}>
             <h4 id={`${baseId}-why`} className="rc-blockTitle">
               {CARD_TITLE_WHY}
             </h4>
-            <NarrativeEducationBlock block={episode.resultWhyStopBrief} />
+            {episode.whyProblem.map((line, ix) => (
+              <p key={`${baseId}-why-${ix}`} className="rc-subText">
+                {withPreferredLineBreaks(line)}
+              </p>
+            ))}
           </section>
 
           <section className="rc-block" aria-labelledby={`${baseId}-chat`}>
@@ -488,11 +478,7 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
               {CARD_TITLE_PEER}
             </h4>
             <div className="rc-peerQuote">
-              {episode.peerTalkLines.map((line, ix) => (
-                <p key={`${episode.id}-peer-${ix}`} className={ix === 0 ? "rc-keyLine" : "rc-subText"}>
-                  {withPreferredLineBreaks(line)}
-                </p>
-              ))}
+              <p className="rc-subText">{withPreferredLineBreaks(episode.peerTalkLine)}</p>
             </div>
           </section>
 
