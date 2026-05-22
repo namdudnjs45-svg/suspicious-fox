@@ -25,19 +25,14 @@ export type DiaryComicPanel = {
   signalHint: string;
 };
 
-/** 「흐름 다시 보기」 펼침용 짧은 불릿 묶음 */
-export type DiaryConversationFlowBundle = {
-  titles?: Partial<Record<"call" | "sms" | "psych", string>>;
-  callLikeBullets: readonly string[];
-  smsBullets: readonly string[];
-  psychBullets: readonly string[];
-};
-
 /** 채팅 예시 말풍선(상대 / 여우). */
 export type DiaryChatTurn = {
   speaker: "stranger" | "fox";
   text: string;
 };
+
+/** 결과 카드 「내가 고른 순간」 — 컷 0~3 각각 최대 3줄, `\n` 구분 */
+export type DiaryResultPickMoments = readonly [string, string, string, string];
 
 export type DiaryEpisode = {
   id: string;
@@ -52,18 +47,10 @@ export type DiaryEpisode = {
   quizStripHint?: string;
   /** 단일 정답 모드 비활성화(항상 학습형) */
   noSingleCorrectAnswer: true;
-  /** 0~3 · 만화 중 ‘특히 강한 경고’에 해당하는 컷. null 가능 */
-  strongestWarningCut: number | null;
-  /** 「특히 강한 경고 신호」 블록 (짧게) */
-  strongestWarningReason: string;
-  /** 고른 컷(0~3)별 피드백 */
-  selectedCutFeedback: readonly [string, string, string, string];
-  /** 상단 요약 본문 (문단은 \n\n 구분; 공감 첫 줄은 화면에서 공통 제공) */
-  explainSummary: string;
-  /** 「이 대화가 수상한 이유」 */
-  suspiciousWhy: string;
-  /** 「여기서 멈춰야 할 신호」 — 굵게·짧게 */
-  stopSignalsHighlight: string;
+  /** 결과 카드 — 컷별 짧은 멘트(2~3문장 `\n`) */
+  resultPickMomentByCut: DiaryResultPickMoments;
+  /** 결과 카드 「왜 멈춰야」 — 최대 3줄 `\n` */
+  resultWhyStopBrief: string;
   checklist: readonly string[];
   /** 하단 1줄 — 화면에 한 번만 */
   closingMessage: string;
@@ -71,13 +58,12 @@ export type DiaryEpisode = {
   chatExample: readonly DiaryChatTurn[];
   /** 기본 전체 노출 · 모두 짧게 유지 */
   chatVisibleTurns?: number;
-  /** 「가까운 사람에게…」 에 넣을 짧은 인용 예시 한 덩어리 */
+  /** 「가까운 사람에게…」 짧은 인용(줄바꿈 `\n` 가능) */
   peerTalkPrompt: string;
-  conversationFlowInsight: DiaryConversationFlowBundle;
 };
 
 export const MVP_CLOSING_LINE =
-  "잠시 멈춰보세요. 차분히 생각해도 늦지 않습니다.";
+  "한 박자 쉬어도,\n늦지 않아요.";
 
 export const DIARY_COMIC_IMAGE_MAP: Readonly<Record<string, string>> = {};
 
@@ -111,7 +97,7 @@ export function findDiaryEpisodeById(id: string): DiaryEpisode | undefined {
 export const DIARY_EPISODES: readonly DiaryEpisode[] = [
   {
     id: "court-registry-call",
-    shortIntro: "등기가 온 것처럼 말했지만, 진짜 법원일까?",
+    shortIntro: "등기 문자, 진짜 법원일까요?",
     categoryLabel: "기관처럼 느껴진 전화·문자",
     title: "법원 전화를 받은 여우",
     subtitle: "어떻게 멈춰야 할까요?",
@@ -168,53 +154,31 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
           "‘불이익’ ‘과태료’를 겹치며 오늘 안에 처리하도록 몰아가면 일단 속도 줄이고 공식 채널을 떠올려볼 순간일 수 있어요.",
       },
     ],
-    question: "어느 장면부터 가장 먼저 멈춰보고 싶었나요?",
-    quizStripHint:
-      "만화 흐름을 읽으며, 마음이 먼저 걸리는 컷을 골라도 괜찮아요.",
+    question: "먼저 멈추고 싶은 컷을 골라 보세요.",
+    quizStripHint: "흐름 읽으며, 걸리는 컷부터 골라요.",
     noSingleCorrectAnswer: true,
-    strongestWarningCut: 1,
-    strongestWarningReason:
-      "기관을 사칭해도 ‘지금 링크만’ ‘오늘 안에만’으로 몰아가면 위험이 커질 수 있어요. 낯선 링크는 바로 열지 않고, 직접 찾은 공식 연락처로 한 번만 확인해 보는 편이 좋아요.",
-    selectedCutFeedback: [
-      "첫 연락만으로도 기관 이름이 맞는지 의심해 볼 수 있어요. 여기서도 멈출 수 있어요.",
-      "일정을 묻고 곧바로 링크로 끌고 갈 때는 숨을 고르기 좋아요. 여기서도 멈출 수 있어요.",
-      "민감한 정보를 링크·문자로 넘기라고 하면 한 박자 쉬어도 괜찮아요. 여기서도 멈출 수 있어요.",
-      "시한·과태료로 압박할수록 공식 경로를 따로 찾아볼 여지가 생겨요. 여기서도 멈출 수 있어요.",
+    resultPickMomentByCut: [
+      "등기 얘기 문자로,\n연락이 먼저 왔어요.\n숨 고를 순간이에요.",
+      "링크로 확인하라는,\n말이 바로 나왔어요.\n‘지금’에 손이 갔어요.",
+      "번호 뒷자리까지,\n링크에서 넣게 했어요.\n문자만으로는 의심스러워요.",
+      "오늘 안에라며,\n과태료를 말했어요.\n재촉이 한꺼번에 왔어요.",
     ],
-    explainSummary:
-      "어느 컷에서든 ‘뭔가 이상한데’가 느껴질 수 있어요.\n\n이 흐름에서는 링크로 끌고 가고 ‘오늘 안에’를 겹칠수록 위험이 커지기 쉬워요.",
-    suspiciousWhy:
-      "진짜 기관 연락이라도 보통은 낯선 링크만으로 민감 정보를 요구하지 않아요. 전화·문자가 급하게 압박할수록 잠깐 끊고 직접 검색한 안내를 보는 편이 안전해요.",
-    stopSignalsHighlight:
-      "링크로만 확인하라고 하거나, 오늘 안 처리 시 불이익을 겹쳐 말하면 먼저 멈춰보세요.",
+    resultWhyStopBrief:
+      "진짜 기관도 문자 링크만으로,\n개인정보를 요구하진 않아요.\n압박이 세면 공식번호를 찾아요.",
     checklist: [],
     closingMessage: MVP_CLOSING_LINE,
     chatExample: [
-      { speaker: "stranger", text: "OO법원입니다. 등기 확인 때문에 연락드렸습니다." },
-      { speaker: "fox", text: "공식 사이트에서도 볼 수 있나요?" },
-      {
-        speaker: "stranger",
-        text: "지금은 이 링크로만 확인 가능합니다. 오늘 안에 접속해 주세요.",
-      },
-      { speaker: "fox", text: "잠깐요. 번호랑 링크는 제가 찾은 공식 연락처로 다시 확인할게요." },
+      { speaker: "stranger", text: "OO법원 안내 문자\n링크 확인 부탁" },
+      { speaker: "fox", text: "공식 사이트에서도\n조회 가능한가요?" },
+      { speaker: "stranger", text: "지금 접속이 필요합니다" },
+      { speaker: "fox", text: "제가 번호 찾아서\n직접 전화할게요" },
     ],
     peerTalkPrompt:
-      "“법원에서 왔다는데 링크로만 확인하래. 이거 진짜인지 같이 봐줄 수 있어?”",
-    conversationFlowInsight: {
-      callLikeBullets: [
-        "법원·등기처럼 이름을 맞춰 먼저 연락할 수 있어요.",
-        "내 일정을 물으며 대화를 이어 갈 수 있어요.",
-      ],
-      smsBullets: ["링크·프로그램 안내 문자가 바로 붙을 수 있어요.", "‘오늘 안에’처럼 시간을 몰아세울 수 있어요."],
-      psychBullets: [
-        "기관 이름 때문에 잠깐 믿게 될 수 있어요.",
-        "급하게 느껴질 때 한 박자 쉬면 흐름이 달라질 수 있어요.",
-      ],
-    },
+      "법원이라는 문자가 왔는데,\n링크부터 보래.\n진짠지 같이 봐 줄래?",
   },
   {
     id: "cheap-ticket-deal",
-    shortIntro: "저렴한 티켓이 과연 안전하게 넘어올까요?",
+    shortIntro: "싼 티켓, 안전하게 올까요?",
     categoryLabel: "티켓·당첨 류 문자",
     title: "티켓을 싸게 산 여우",
     subtitle: "어떻게 멈춰야 할까요?",
@@ -268,54 +232,31 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
           "이미 손해가 났다고 느껴도, 새 이체라도 막았다면 이후 회복 가능성만큼이라도 줄일 수 있어요.",
       },
     ],
-    question: "어느 장면부터 가장 먼저 멈춰보고 싶었나요?",
-    quizStripHint:
-      "만화 흐름을 읽으며, 마음이 먼저 걸리는 컷을 골라도 괜찮아요.",
+    question: "먼저 멈추고 싶은 컷을 골라 보세요.",
+    quizStripHint: "흐름 읽으며, 걸리는 컷부터 골라요.",
     noSingleCorrectAnswer: true,
-    strongestWarningCut: 2,
-    strongestWarningReason:
-      "어느 컷에서든 이상함을 느낄 수 있어요. 다만 이 사례에서는 ‘돈을 다시 보내라고 하는 순간’이 가장 강한 사기 신호에 가깝습니다.\n\n특히 이미 송금한 뒤 같은 금액을 또 보내라고 하면, 거의 반드시 멈춰야 해요.",
-    selectedCutFeedback: [
-      "싼 값에 마음이 끌려도 속도부터 내기 전에 호흡을 늦출 수 있어요. 여기서도 멈출 수 있어요.",
-      "한 번 보냈다고 안심하지 않아도 괜찮아요. 이상한 안내가 이어지면 바로 확인해요. 여기서도 멈출 수 있어요.",
-      "이미 입금했는데 같은 금액을 또 보내라 하면 추가 송금은 하지 않는 편이 좋아요. 여기서도 멈출 수 있어요.",
-      "연락이 끊긴 뒤에도 추가로 보내지 않았다면 피해를 더 키우지 않을 수 있어요. 여기서도 멈출 수 있어요.",
+    resultPickMomentByCut: [
+      "싼 매물에 마음이 가서,\n연락이 빨라졌어요.\n여기서 숨 고를 수 있어요.",
+      "한 번 입금까진,\n했다는 줄이에요.\n이상한 문자가 이어질 수 있어요.",
+      "이미 보냈는데도,\n같은 금을 또 보내래요.\n두 번째 요구가 핵심이에요.",
+      "답이 없고 차단이면,\n추가 입금은 피했어요.\n더 키우지 않는 거예요.",
     ],
-    explainSummary:
-      "이 사례는 처음부터 조금씩 수상했지만, 이미 돈을 보낸 뒤 다시 송금을 요구하는 순간은 특히 강한 사기 신호예요.\n\n‘송금자명 오류’, ‘재처리’, ‘같은 금액 다시 보내기’는 자주 쓰이는 방식이에요. 돈을 또 보내라고 하면 그 자리에서 멈추는 것이 맞아요.",
-    suspiciousWhy:
-      "실제 거래에서는 잘못 이체했다고 해도 정상적인 절차로 돌려받도록 안내하는 경우가 많아요. ‘같은 금액을 한 번 더 보내라’는 식으로 막 몰아가면 가짜 플로우일 가능성이 큽니다.",
-    stopSignalsHighlight: "이미 돈을 보냈는데 다시 보내라고 하면 바로 멈춰야 해요.",
+    resultWhyStopBrief:
+      "진짜 거래는,\n같은 돈을 두 번,\n먼저 보내라 하진 않아요.\n돌려받음은 절차로 알려줘요.",
     checklist: [],
     closingMessage: MVP_CLOSING_LINE,
     chatExample: [
-      { speaker: "stranger", text: "송금자명이 잘못 들어갔어요." },
-      {
-        speaker: "stranger",
-        text: "같은 금액 다시 보내주시면 기존 금액과 함께 처리해드릴게요.",
-      },
-      { speaker: "fox", text: "먼저 보낸 돈은 어떻게 되나요?" },
-      { speaker: "stranger", text: "재입금 확인 후 같이 처리됩니다." },
+      { speaker: "stranger", text: "송금자명이\n불일치래요" },
+      { speaker: "fox", text: "이름 맞게\n넣었는데요?" },
+      { speaker: "stranger", text: "같은 금 재입금\n첫 건은 후처리예요" },
+      { speaker: "fox", text: "먼저 보낸 돈부터\n돌려줘요" },
     ],
-    peerTalkPrompt: "티켓 샀는데 송금 오류라면서 돈을 다시 보내래. 이거 이상하지 않아?",
-    conversationFlowInsight: {
-      callLikeBullets: [
-        "남들은 못 산 좌석이라며 가격부터 말 걸 때가 많아요.",
-        "평소 안 쓰는 채팅 채널로만 접선하는 경우도 있어요.",
-      ],
-      smsBullets: [
-        "계좌·금액을 한 번에 보냅니다.",
-        "‘송금자명 불일치’처럼 같은 금액을 다시 요구할 수 있어요.",
-      ],
-      psychBullets: [
-        "이미 한 번 보냈다면 다음 지시를 따르기 쉬워요.",
-        "돈 되돌려준다는 말만 있고 처리가 안 보이면 속도 줄이면 좋아요.",
-      ],
-    },
+    peerTalkPrompt:
+      "티켓인데 이름 틀렸대요.\n두 번 더 보내래요.\n이거 같이 봐줄래요?",
   },
   {
     id: "family-message-trap",
-    shortIntro: "싼 가격 뒤에 숨은 중고거래 선입금 루트를 알아볼까요?",
+    shortIntro: "싼 가격 뒤, 선입금 루트를 볼까요?",
     categoryLabel: "중고거래·선입금 류",
     title: "싸게 올린 물건에 혹한 여우",
     subtitle: "어떻게 멈춰야 할까요?",
@@ -367,52 +308,26 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
         signalHint: "먼저 보냈던 돌려받기는 어려워져도, 여기서 또 보냈다면 피해는 더 커질 수 있어요.",
       },
     ],
-    question: "어느 장면부터 가장 먼저 멈춰보고 싶었나요?",
-    quizStripHint:
-      "만화 흐름을 읽으며, 마음이 먼저 걸리는 컷을 골라도 괜찮아요.",
+    question: "먼저 멈추고 싶은 컷을 골라 보세요.",
+    quizStripHint: "흐름 읽으며, 걸리는 컷부터 골라요.",
     noSingleCorrectAnswer: true,
-    strongestWarningCut: 2,
-    strongestWarningReason:
-      "어느 컷에서든 찜찜함을 느낄 수 있어요. 이 흐름에서는 ‘사람·물건을 확인하기 전에 선입금을 재촉하는 순간’에 위험이 특히 커지기 쉬워요.",
-    selectedCutFeedback: [
-      "싼 가격만 보고도 한 박자 쉬어도 괜찮아요. 여기서도 멈출 수 있어요.",
-      "직거래를 피하고 돈만 먼저 달라고 하면 의심해 볼 수 있어요. 여기서도 멈출 수 있어요.",
-      "다른 구매자가 있다며 지금 보내라고 몰아가면 보내기 전에 멈춰도 늦지 않아요. 여기서도 멈출 수 있어요.",
-      "이미 보낸 뒤라면 추가 송금은 막는 것부터가 줄일 수 있는 범위예요. 여기서도 멈출 수 있어요.",
+    resultPickMomentByCut: [
+      "싼 가격에 마음 가서,\n문의부터 빠졌어요.\n처음 줄에서도 숨 고를 만해요.",
+      "직거래는 안 된다던데,\n택배만 말했어요.\n만나 보는 게 먼저예요.",
+      "다른 분 있다며,\n오늘 입금 재촉했어요.\n보내기 전이 제일 소중해요.",
+      "입금 뒤 읽음만 뜨고,\n연락이 끊겼어요.\n더 보냈는지부터가 차이예요.",
     ],
-    explainSummary:
-      "어느 컷에서든 ‘너무 빠르다’는 느낌을 받을 수 있어요.\n\n직거래를 줄인 뒤 ‘다른 예약자’로 선금을 재촉하면, 확인 없이 따라가면 위험이 커져요.",
-    suspiciousWhy:
-      "통상 중고 거래에서는 만나거나 안전결제처럼 확인할 방법을 두는 편이 많아요. 연락만으로 선입금을 재촉하면 사기 패턴과 겹치기 쉽습니다.",
-    stopSignalsHighlight: "사람도 물건도 못 확인했는데 선입금만 재촉하면 먼저 멈춰보세요.",
+    resultWhyStopBrief:
+      "사람과 물건,\n직접 못 보면 의심해도 돼요.\n선금만 재촉하면 패턴과 겹쳐요.",
     checklist: [],
     closingMessage: MVP_CLOSING_LINE,
     chatExample: [
-      { speaker: "stranger", text: "직거래는 어렵고 택배만 돼요. 선입금해 주세요." },
-      { speaker: "fox", text: "한번 만나서 보면 안 될까요?" },
-      { speaker: "stranger", text: "다른 분 예약 걸려 있어요. 오늘 중 입금해 주세요." },
-      { speaker: "fox", text: "사람 못 봤는데 먼저 보내기 어렵겠어요." },
+      { speaker: "stranger", text: "택배만 돼요\n선입금 후 출고예요" },
+      { speaker: "fox", text: "한번 보면\n안 될까요?" },
+      { speaker: "stranger", text: "다른 분 대기\n오늘 입금 필요" },
+      { speaker: "fox", text: "못 봤는데\n먼저 못 보내요" },
     ],
     peerTalkPrompt:
-      "“중고로 샀는데 직거래 피하고 선금만 재촉하는데, 이런 거 흔해? 이상하지 않아?”",
-    conversationFlowInsight: {
-      titles: {
-        call: "거래 시작",
-        sms: "채팅·송금",
-        psych: "마음이 끌릴 때",
-      },
-      callLikeBullets: [
-        "시세보다 싼 가격으로 시선을 끌 때가 많아요.",
-        "채팅만 반복하기도 해요.",
-      ],
-      smsBullets: [
-        "직거래는 어렵다며 택배·선입금부터 말할 수 있어요.",
-        "다른 예약자로 지금 입금하게 몰아갈 때가 많아요.",
-      ],
-      psychBullets: [
-        "좋은 조건을 놓칠까 봐 속도부터 내기 쉬워요.",
-        "재촉이 크면 한 번 숨 고르도록 해도 충분해요.",
-      ],
-    },
+      "중고 샀는데 만나 보기 전에,\n선금부터 재촉해요.\n이상한 거 같아?",
   },
 ] as const;

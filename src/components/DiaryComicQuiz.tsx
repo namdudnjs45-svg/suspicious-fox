@@ -9,27 +9,20 @@ import {
 } from "../data/diaryEpisodes";
 import { EpisodeFeedbackMiniCard } from "./EpisodeFeedbackMiniCard";
 
-const DEFAULT_EMPATHY_LINE = "내가 고른 순간도 이상하게 느껴질 수 있어요.";
+const DEFAULT_QUIZ_STRIP_HINT = "흐름 읽으며, 걸리는 컷부터 골라요.";
 
-const DEFAULT_QUIZ_STRIP_HINT =
-  "만화 흐름을 읽으며, 마음이 먼저 걸리는 컷을 골라도 괜찮아요.";
+const CARD_TITLE_PICK = "내가 고른 순간";
+const CARD_TITLE_WHY = "왜 멈춰야 했나요?";
+const CARD_TITLE_CHAT = "실제 대화 예시";
+const CARD_TITLE_PEER = "가까운 사람에게 말해보기";
 
-const SECTION_SUSPICIOUS = "이 대화가 수상한 이유";
-const SECTION_CHAT = "실제로 오갈 법한 짧은 대화 예시";
-const SECTION_STOP = "여기서 멈춰야 할 신호";
-const SECTION_PEER = "가까운 사람에게 이렇게 말해보기";
-const SECTION_STRONG = "특히 강한 경고 신호";
-const FLOW_AGAIN_SUMMARY = "흐름 다시 보기";
-
-const FLOW_FALLBACK_CALL = "통화처럼 시작";
-const FLOW_FALLBACK_SMS = "문자·채팅";
-const FLOW_FALLBACK_PSYCH = "마음이 끌릴 때";
-
-function paragraphsFromText(text: string): string[] {
-  return text
-    .split(/\n\n+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+/** 결과 카드 · 짧은 문단을 줄 단위로(최대 `maxLines`) */
+function snippetLines(block: string, maxLines = 3): string[] {
+  return block
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, maxLines);
 }
 
 function splitChatTurns(
@@ -39,6 +32,68 @@ function splitChatTurns(
   const n = turns.length;
   const cap = visibleMax === undefined ? n : Math.min(Math.max(visibleMax, 0), n);
   return { head: turns.slice(0, cap), tail: turns.slice(cap) };
+}
+
+/** 채팅 예시 시간 간격(시각 연출용·실제 시간 아님) */
+function messengerTurnTime(ix: number): string {
+  const baseMin = 14 * 60 + 28;
+  const m = baseMin + ix * 4;
+  const h24 = Math.floor(m / 60) % 24;
+  const min = m % 60;
+  const pm = h24 >= 12;
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${pm ? "오후" : "오전"} ${h12}:${String(min).padStart(2, "0")}`;
+}
+
+function EducationMessengerThread({
+  episodeId,
+  head,
+  tail,
+}: {
+  episodeId: string;
+  head: readonly DiaryChatTurn[];
+  tail: readonly DiaryChatTurn[];
+}) {
+  function renderBubble(turn: DiaryChatTurn, globalIx: number) {
+    const isFox = turn.speaker === "fox";
+    const time = messengerTurnTime(globalIx);
+
+    return (
+      <div
+        key={`${episodeId}-edu-msg-${globalIx}`}
+        className={`edu-msgRow${isFox ? " edu-msgRow--me" : " edu-msgRow--them"}`}
+        role="listitem"
+      >
+        <div className={`edu-msgAvatar${isFox ? " edu-msgAvatar--me" : " edu-msgAvatar--them"}`} aria-hidden>
+          {isFox ? "🦊" : "?"}
+        </div>
+        <div className="edu-msgPayload">
+          <div className={`edu-msgBubble${isFox ? " edu-msgBubble--me" : " edu-msgBubble--them"}`}>
+            {turn.text}
+          </div>
+          <span className={`edu-msgTime${isFox ? " edu-msgTime--me" : ""}`}>{time}</span>
+        </div>
+      </div>
+    );
+  }
+
+  let runningIx = 0;
+
+  return (
+    <section className="edu-msgSection" aria-label="메신저 대화 예시">
+      <div className="edu-msgPhone" role="list">
+        {head.map((turn) => renderBubble(turn, runningIx++))}
+      </div>
+      {tail.length > 0 ? (
+        <details className="edu-msgMore dq-detailsMore dq-detailsMore--muted dq-detailsMore--tight">
+          <summary>이어지는 메시지</summary>
+          <div className="edu-msgPhone edu-msgPhone--more" role="list">
+            {tail.map((turn) => renderBubble(turn, runningIx++))}
+          </div>
+        </details>
+      ) : null}
+    </section>
+  );
 }
 
 function episodeHasComicImages(ep: DiaryEpisode): ep is DiaryEpisode & { comicImages: readonly [string, string, string, string] } {
@@ -286,9 +341,6 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
   const { head: chatHead, tail: chatTail } = splitChatTurns(episode.chatExample, episode.chatVisibleTurns);
   const fieldsetId = `${baseId}-choices`;
   const imageQuiz = episodeHasComicImages(episode);
-  const flow = episode.conversationFlowInsight;
-  const summaryParas = paragraphsFromText(episode.explainSummary);
-  const strongParas = paragraphsFromText(episode.strongestWarningReason);
 
   function pickFourButtons() {
     return (
@@ -418,141 +470,61 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
 
       {revealed && choice !== null ? (
         <div
-          className="dq-resultCard dq-resultCard--mvp dq-resultCard--unifiedExplain"
+          className="dq-resultCard dq-resultCard--mvp dq-resultCard--shortCard"
           aria-live="polite"
           role="region"
           aria-labelledby={`${baseId}-result`}
         >
           <h4 id={`${baseId}-result`} className="dq-visuallyHidden">
-            사기 흐름 해설
+            사기 예방 결과 카드
           </h4>
 
-          <div className="dq-unifiedLead" aria-live="polite">
-            <p className="dq-unifiedEmpathy">{DEFAULT_EMPATHY_LINE}</p>
-            {summaryParas.map((p, ix) => (
-              <p key={`${episode.id}-sum-${ix}`} className="dq-unifiedSummaryLine">
-                {p}
-              </p>
-            ))}
-            <p className="dq-unifiedPickFeedback">
-              <span className="dq-unifiedPickLabel">
-                내가 살펴본 순간: <strong>{choice + 1}컷</strong>
-              </span>
-              <span className="dq-unifiedPickNote"> {episode.selectedCutFeedback[choice]}</span>
+          <section className="rc-block" aria-labelledby={`${baseId}-pick`}>
+            <h4 id={`${baseId}-pick`} className="rc-blockTitle">
+              {CARD_TITLE_PICK}
+            </h4>
+            <p className="rc-bodyLine">
+              {choice + 1}컷을 먼저 멈추려고 골랐어요.
             </p>
-          </div>
-
-          <section className="dq-unifiedSection" aria-labelledby={`${baseId}-strong`}>
-            <h4 id={`${baseId}-strong`} className="dq-unifiedSectionTitle">
-              {SECTION_STRONG}
-            </h4>
-            {strongParas.map((p, ix) => (
-              <p key={`${episode.id}-str-${ix}`} className="dq-unifiedSectionBody">
-                {p}
-              </p>
-            ))}
-            {episode.strongestWarningCut !== null ? (
-              <p className="dq-unifiedStrongRef">
-                먼저 의심해볼 장면: <strong>{episode.strongestWarningCut + 1}컷</strong> 근처
-              </p>
-            ) : null}
-          </section>
-
-          <section className="dq-unifiedSection" aria-labelledby={`${baseId}-why`}>
-            <h4 id={`${baseId}-why`} className="dq-unifiedSectionTitle">
-              {SECTION_SUSPICIOUS}
-            </h4>
-            {paragraphsFromText(episode.suspiciousWhy).map((p, ix) => (
-              <p key={`${episode.id}-why-${ix}`} className="dq-unifiedSectionBody">
-                {p}
+            {snippetLines(episode.resultPickMomentByCut[choice], 2).map((line, ix) => (
+              <p key={`${episode.id}-pick-${ix}`} className="rc-bodyLine">
+                {line}
               </p>
             ))}
           </section>
 
-          <section className="dq-unifiedSection dq-unifiedSection--chat" aria-labelledby={`${baseId}-chat`}>
-            <h4 id={`${baseId}-chat`} className="dq-unifiedSectionTitle dq-unifiedSectionTitle--chat">
-              {SECTION_CHAT}
+          <section className="rc-block" aria-labelledby={`${baseId}-why`}>
+            <h4 id={`${baseId}-why`} className="rc-blockTitle">
+              {CARD_TITLE_WHY}
             </h4>
-            <div className="dq-chatThread dq-chatThread--tight dq-chatThread--unified" role="list">
-              {chatHead.map((turn, i) => (
-                <div
-                  key={`${episode.id}-ch-${i}`}
-                  role="listitem"
-                  className={`dq-chatRow${turn.speaker === "fox" ? " dq-chatRow--fox" : " dq-chatRow--other"}`}
-                >
-                  <span className="dq-chatBubble">{turn.text}</span>
-                </div>
+            {snippetLines(episode.resultWhyStopBrief, 3).map((line, ix) => (
+              <p key={`${episode.id}-why-${ix}`} className="rc-bodyLine">
+                {line}
+              </p>
+            ))}
+          </section>
+
+          <section className="rc-block" aria-labelledby={`${baseId}-chat`}>
+            <h4 id={`${baseId}-chat`} className="rc-blockTitle">
+              {CARD_TITLE_CHAT}
+            </h4>
+            <EducationMessengerThread episodeId={episode.id} head={chatHead} tail={chatTail} />
+          </section>
+
+          <section className="rc-block" aria-labelledby={`${baseId}-peer`}>
+            <h4 id={`${baseId}-peer`} className="rc-blockTitle">
+              {CARD_TITLE_PEER}
+            </h4>
+            <div className="rc-peerQuote">
+              {snippetLines(episode.peerTalkPrompt, 3).map((line, ix) => (
+                <p key={`${episode.id}-peer-${ix}`} className="rc-peerQuoteLine">
+                  {line}
+                </p>
               ))}
             </div>
-            {chatTail.length > 0 ? (
-              <details className="dq-detailsMore dq-detailsMore--muted dq-detailsMore--tight dq-chatMoreWrap">
-                <summary>조금 더 보기</summary>
-                <div className="dq-chatThread dq-chatThread--tight dq-chatThread--more" role="list">
-                  {chatTail.map((turn, i) => (
-                    <div
-                      key={`${episode.id}-ch-more-${i}`}
-                      role="listitem"
-                      className={`dq-chatRow${turn.speaker === "fox" ? " dq-chatRow--fox" : " dq-chatRow--other"}`}
-                    >
-                      <span className="dq-chatBubble">{turn.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            ) : null}
           </section>
 
-          <section className="dq-unifiedSection dq-unifiedSection--stop" aria-labelledby={`${baseId}-stop`}>
-            <h4 id={`${baseId}-stop`} className="dq-unifiedSectionTitle">
-              {SECTION_STOP}
-            </h4>
-            <p className="dq-unifiedStopHighlight">{episode.stopSignalsHighlight}</p>
-          </section>
-
-          <section className="dq-unifiedSection" aria-labelledby={`${baseId}-peer`}>
-            <h4 id={`${baseId}-peer`} className="dq-unifiedSectionTitle">
-              {SECTION_PEER}
-            </h4>
-            <p className="dq-unifiedPeerQuote">{episode.peerTalkPrompt}</p>
-          </section>
-
-          <details className="dq-detailsMore dq-detailsFlowAgain dq-detailsMore--muted dq-detailsMore--tight">
-            <summary>{FLOW_AGAIN_SUMMARY}</summary>
-            <div className="dq-flowPanelStack dq-flowPanelStack--embedded" role="region">
-              <section className="dq-flowInsightCard dq-flowInsightCard--compact" aria-labelledby={`${baseId}-ef-call`}>
-                <h4 id={`${baseId}-ef-call`} className="dq-flowInsightTitle">
-                  {flow.titles?.call ?? FLOW_FALLBACK_CALL}
-                </h4>
-                <ul className="dq-flowInsightList">
-                  {flow.callLikeBullets.map((line, ix) => (
-                    <li key={`${episode.id}-efc-${ix}`}>{line}</li>
-                  ))}
-                </ul>
-              </section>
-              <section className="dq-flowInsightCard dq-flowInsightCard--compact" aria-labelledby={`${baseId}-ef-sms`}>
-                <h4 id={`${baseId}-ef-sms`} className="dq-flowInsightTitle">
-                  {flow.titles?.sms ?? FLOW_FALLBACK_SMS}
-                </h4>
-                <ul className="dq-flowInsightList">
-                  {flow.smsBullets.map((line, ix) => (
-                    <li key={`${episode.id}-efs-${ix}`}>{line}</li>
-                  ))}
-                </ul>
-              </section>
-              <section className="dq-flowInsightCard dq-flowInsightCard--compact" aria-labelledby={`${baseId}-ef-psych`}>
-                <h4 id={`${baseId}-ef-psych`} className="dq-flowInsightTitle">
-                  {flow.titles?.psych ?? FLOW_FALLBACK_PSYCH}
-                </h4>
-                <ul className="dq-flowInsightList">
-                  {flow.psychBullets.map((line, ix) => (
-                    <li key={`${episode.id}-efp-${ix}`}>{line}</li>
-                  ))}
-                </ul>
-              </section>
-            </div>
-          </details>
-
-          <p className="dq-unifiedClosingFooter">{episode.closingMessage}</p>
+          <p className="rc-closing dq-unifiedClosingFooter">{episode.closingMessage}</p>
 
           <EpisodeFeedbackMiniCard episodeId={episode.id} />
 

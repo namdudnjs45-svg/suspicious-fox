@@ -36,6 +36,14 @@
   }
 }
 
+/* 한글·한국어 UI 가독: 단어 단위 줄바꿈(앱 전역, 버튼·말풍선 포함 상속) */
+body,
+body #root {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+
 .sf-app {
   min-height: 100dvh;
   min-height: 100svh;
@@ -3108,6 +3116,7 @@
   line-height: 1.5;
   letter-spacing: -0.02em;
   color: rgba(116, 78, 48, 0.88);
+  white-space: pre-line;
 }
 
 .dq-resultCard {
@@ -3252,6 +3261,7 @@
   line-height: 1.46;
   text-align: center;
   color: rgba(90, 60, 40, 0.88);
+  white-space: pre-line;
 }
 
 /* 사례 하단 초간단 피드백 카드 */
@@ -4216,6 +4226,188 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   padding-top: 10px;
 }
 
+/* --- 결과 카드(4블록 + 메신저) --- */
+.dq-resultCard--shortCard {
+  background: linear-gradient(168deg, #ffffff 0%, #fcf9f5 52%, #fff3e8 100%);
+  border-color: rgba(251, 191, 120, 0.38);
+}
+
+.rc-block {
+  margin: 0 2px 12px;
+  padding: 10px 10px 11px;
+  border-radius: 14px;
+  background: rgba(255, 255, 253, 0.82);
+  border: 1px solid rgba(253, 220, 196, 0.45);
+}
+
+.rc-blockTitle {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.38;
+  color: rgba(234, 88, 12, 0.93);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+
+.rc-bodyLine {
+  margin: 0 0 7px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.52;
+  letter-spacing: -0.028em;
+  color: rgba(58, 44, 32, 0.94);
+}
+
+.rc-bodyLine:last-child {
+  margin-bottom: 0;
+}
+
+.rc-peerQuote {
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: rgba(255, 251, 246, 0.95);
+  border: 1px dashed rgba(251, 146, 60, 0.34);
+}
+
+.rc-peerQuoteLine {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.52;
+  letter-spacing: -0.028em;
+  color: rgba(72, 50, 32, 0.94);
+}
+
+.rc-peerQuoteLine:last-child {
+  margin-bottom: 0;
+}
+
+.rc-closing {
+  margin-top: 10px;
+}
+
+.edu-msgSection {
+  margin-bottom: 12px;
+}
+
+.edu-msgPhone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 11px 14px;
+  border-radius: 16px;
+  background: rgba(245, 245, 243, 0.92);
+  border: 1px solid rgba(214, 211, 206, 0.65);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.edu-msgPhone--more {
+  margin-top: 6px;
+  background: rgba(250, 250, 248, 0.95);
+}
+
+.edu-msgMore {
+  margin-top: 6px;
+}
+
+.edu-msgRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.edu-msgRow--them {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.edu-msgRow--me {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.edu-msgAvatar {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.edu-msgAvatar--them {
+  background: rgba(228, 228, 226, 0.98);
+  border: 1px solid rgba(180, 180, 176, 0.55);
+  color: rgba(82, 82, 82, 0.88);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.edu-msgAvatar--me {
+  background: linear-gradient(160deg, #ffedd5 0%, #fed7aa 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.45);
+}
+
+.edu-msgPayload {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: calc(100% - 42px);
+  gap: 3px;
+}
+
+.edu-msgRow--me .edu-msgPayload {
+  align-items: flex-end;
+}
+
+.edu-msgBubble {
+  padding: 9px 12px 9px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.42;
+  letter-spacing: -0.025em;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+  max-width: 100%;
+  box-shadow: 0 1px 3px rgba(40, 30, 20, 0.06);
+}
+
+.edu-msgBubble--them {
+  background: #ffffff;
+  border: 1px solid rgba(214, 211, 206, 0.85);
+  color: rgba(52, 48, 46, 0.94);
+  border-bottom-left-radius: 6px;
+}
+
+.edu-msgBubble--me {
+  background: linear-gradient(168deg, #fff4ea 0%, #ffdfb8 94%);
+  border: 1px solid rgba(251, 146, 60, 0.55);
+  color: rgba(92, 40, 12, 0.95);
+  border-bottom-right-radius: 6px;
+}
+
+.edu-msgTime {
+  padding: 0 2px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(130, 120, 110, 0.72);
+  letter-spacing: -0.02em;
+}
+
+.edu-msgTime--me {
+  align-self: flex-end;
+}
+
 .dq-blockTitle--answer {
   margin-top: 4px !important;
   font-size: 13px !important;
@@ -4356,6 +4548,9 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   line-height: 1.48;
   letter-spacing: -0.02em;
   white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 
 .dq-chatRow--other .dq-chatBubble {
@@ -4692,7 +4887,9 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   letter-spacing: -0.02em;
   color: rgba(68, 49, 35, 0.9);
   white-space: pre-wrap;
-  word-break: break-word;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 
 .fox-reportPreviewEmpty {
@@ -5048,7 +5245,9 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
 .admin-reportsCell--text .admin-reportsMasked {
   display: block;
   white-space: pre-wrap;
-  word-break: break-word;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
   letter-spacing: -0.015em;
   line-height: 1.5;
 }

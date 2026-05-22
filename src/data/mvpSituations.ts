@@ -41,7 +41,7 @@ export const MVP_HUB_EYEBROW = "여우의 수상한 일기장";
 export const MVP_HUB_TITLE = "오늘, 어떤 여우를 구해볼까요?";
 
 /** 부제 */
-export const MVP_HUB_SUBTITLE = "수상한 순간을 찾아내면, 여우가 사기를 피할 수 있어요.";
+export const MVP_HUB_SUBTITLE = "걸리는 순간 찾아내면,\n속지 않기 쉬워져요.";
 
 /** Vite `public/fox-main.png` → `/fox-main.png` */
 export const MVP_HUB_FOX_IMAGE_PATH = "/fox-main.png";
@@ -58,7 +58,7 @@ export const MVP_SITUATION_HUB_ROWS: readonly MvpSituationHubRow[] = [
     emoji: "📞",
     episodeId: "court-registry-call",
     title: "법원 전화를 받은 여우",
-    blurb: "등기 보낸다는데, 진짜 법원일까요?",
+    blurb: "등기 문자, 진짜일까요?",
   },
   {
     rowType: "playable",
@@ -66,7 +66,7 @@ export const MVP_SITUATION_HUB_ROWS: readonly MvpSituationHubRow[] = [
     emoji: "🎟️",
     episodeId: "cheap-ticket-deal",
     title: "저렴한 티켓을 찾은 여우",
-    blurb: "너무 좋은 가격, 정말 괜찮을까요?",
+    blurb: "좋은 가격, 무조건 안전할까요?",
   },
   {
     rowType: "playable",
@@ -74,7 +74,7 @@ export const MVP_SITUATION_HUB_ROWS: readonly MvpSituationHubRow[] = [
     emoji: "📦",
     episodeId: "family-message-trap",
     title: "싸게 올린 물건에 혹한 여우",
-    blurb: "싼 가격·직거래 피함·선입금 재촉… 어디서 멈출까요?",
+    blurb: "싼 가격만 보고선,\n먼저 보내도 될까요?",
   },
   {
     rowType: "reportInvite",
