@@ -4261,6 +4261,16 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   color: rgba(58, 44, 32, 0.94);
 }
 
+.rc-bodyLead {
+  font-weight: 800;
+  color: rgba(72, 45, 25, 0.96);
+}
+
+.rc-proseParagraph {
+  margin-bottom: 11px;
+  line-height: 1.62;
+}
+
 .rc-bodyLine:last-child {
   margin-bottom: 0;
 }
@@ -4856,6 +4866,182 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   border-color: rgba(251, 163, 88, 0.65);
 }
 
+.fox-reportAttachSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2px;
+  padding: 12px 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba(253, 198, 150, 0.55);
+  background: rgba(255, 252, 248, 0.88);
+}
+
+.fox-reportAttachTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  color: rgba(184, 90, 20, 0.98);
+}
+
+.fox-reportAttachHint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.54;
+  letter-spacing: -0.02em;
+  color: rgba(120, 92, 65, 0.72);
+}
+
+.fox-reportAttachPrivacy {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.54;
+  letter-spacing: -0.02em;
+  color: rgba(130, 100, 75, 0.78);
+}
+
+.fox-reportAttachInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.fox-reportAttachToolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fox-reportAttachPickBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(253, 186, 136, 0.75);
+  background: rgba(255, 255, 253, 0.98);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: rgba(52, 36, 24, 0.92);
+  cursor: pointer;
+  box-shadow: 0 1px 8px rgba(200, 120, 50, 0.06);
+}
+
+.fox-reportAttachPickBtn:hover:not(:disabled) {
+  border-color: rgba(251, 146, 60, 0.55);
+  background: rgba(255, 250, 244, 0.98);
+}
+
+.fox-reportAttachPickBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.fox-reportAttachPickBtn:focus-visible {
+  outline: 2px solid rgba(251, 146, 60, 0.45);
+  outline-offset: 2px;
+}
+
+.fox-reportAttachCount {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgba(160, 110, 60, 0.75);
+}
+
+.fox-reportAttachList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fox-reportAttachItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fox-reportAttachThumbWrap {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(253, 210, 175, 0.55);
+  background: rgba(255, 255, 253, 0.95);
+}
+
+.fox-reportAttachThumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fox-reportAttachName {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  color: rgba(68, 49, 35, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fox-reportAttachRemove {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgba(180, 70, 30, 0.88);
+  cursor: pointer;
+}
+
+.fox-reportAttachRemove:hover {
+  text-decoration: underline;
+}
+
+.fox-reportAttachRemove:focus-visible {
+  outline: 2px solid rgba(251, 146, 60, 0.45);
+  outline-offset: 1px;
+  border-radius: 8px;
+}
+
+.fox-reportAttachError {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.48;
+  letter-spacing: -0.02em;
+  color: rgba(160, 50, 30, 0.95);
+  background: rgba(255, 230, 224, 0.82);
+}
+
 .fox-reportPreviewBlock {
   display: flex;
   flex-direction: column;
@@ -5240,6 +5426,16 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
 
 .admin-reportsCell--time {
   white-space: nowrap;
+}
+
+.admin-reportsCell--meta {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(90, 70, 50, 0.78);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-reportsCell--text .admin-reportsMasked {

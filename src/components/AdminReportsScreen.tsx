@@ -8,6 +8,7 @@ export type DashboardReportRow = {
   category: string;
   maskedText: string;
   createdAt: string;
+  attachments?: { fileName: string; mimeType: string; byteSize: number }[];
 };
 
 const FETCH_ERR =
@@ -17,6 +18,31 @@ const KEY_MISSING = "관리자 키를 입력한 뒤 확인·새로고침을 눌�
 function readEnvAdminKey(): string {
   const v = import.meta.env.VITE_ADMIN_REPORTS_KEY;
   return typeof v === "string" ? v.trim() : "";
+}
+
+function parseAttachmentRows(raw: unknown): DashboardReportRow["attachments"] {
+  if (!Array.isArray(raw)) return undefined;
+  const mapped = raw
+    .map((a) => {
+      if (typeof a !== "object" || a === null) return null;
+      const r = a as { fileName?: unknown; mimeType?: unknown; byteSize?: unknown };
+      if (
+        typeof r.fileName !== "string" ||
+        typeof r.mimeType !== "string" ||
+        typeof r.byteSize !== "number"
+      ) {
+        return null;
+      }
+      return { fileName: r.fileName, mimeType: r.mimeType, byteSize: r.byteSize };
+    })
+    .filter((a): a is NonNullable<typeof a> => a !== null);
+  return mapped.length > 0 ? mapped : undefined;
+}
+
+function formatAttachmentsSummary(attachments: DashboardReportRow["attachments"]): string {
+  if (!attachments?.length) return "—";
+  if (attachments.length === 1) return attachments[0].fileName;
+  return `${attachments[0].fileName} 외 ${attachments.length - 1}장`;
 }
 
 export function AdminReportsScreen() {
@@ -53,7 +79,9 @@ export function AdminReportsScreen() {
       const parsed: DashboardReportRow[] = data
         .map((x) => {
           if (typeof x !== "object" || x === null) return null;
-          const o = x as Partial<DashboardReportRow>;
+          const o = x as Partial<DashboardReportRow> & {
+            attachments?: unknown;
+          };
           if (
             typeof o.category !== "string" ||
             typeof o.maskedText !== "string" ||
@@ -61,7 +89,13 @@ export function AdminReportsScreen() {
           ) {
             return null;
           }
-          return { category: o.category, maskedText: o.maskedText, createdAt: o.createdAt };
+          let attachments = parseAttachmentRows(o.attachments);
+          return {
+            category: o.category,
+            maskedText: o.maskedText,
+            createdAt: o.createdAt,
+            ...(attachments ? { attachments } : {}),
+          };
         })
         .filter((x): x is DashboardReportRow => x !== null);
       setRows(parsed);
@@ -147,6 +181,7 @@ export function AdminReportsScreen() {
                 <tr>
                   <th scope="col">createdAt</th>
                   <th scope="col">category</th>
+                  <th scope="col">첨부(메타)</th>
                   <th scope="col">maskedText</th>
                 </tr>
               </thead>
@@ -160,6 +195,9 @@ export function AdminReportsScreen() {
                       })}
                     </td>
                     <td className="admin-reportsCell">{r.category}</td>
+                    <td className="admin-reportsCell admin-reportsCell--meta" title={formatAttachmentsSummary(r.attachments)}>
+                      {formatAttachmentsSummary(r.attachments)}
+                    </td>
                     <td className="admin-reportsCell admin-reportsCell--text">
                       <span className="admin-reportsMasked">{r.maskedText}</span>
                     </td>

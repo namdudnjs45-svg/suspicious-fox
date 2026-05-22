@@ -16,22 +16,17 @@ const CARD_TITLE_WHY = "왜 멈춰야 했나요?";
 const CARD_TITLE_CHAT = "실제 대화 예시";
 const CARD_TITLE_PEER = "가까운 사람에게 말해보기";
 
-/** 결과 카드 · 짧은 문단을 줄 단위로(최대 `maxLines`) */
-function snippetLines(block: string, maxLines = 3): string[] {
+/** 의미 단위 문단만 나눕니다. 빈 줄(문단 구분)으로만 끊고, 문단 안 줄바꿈은 공백으로 합칩니다. */
+function proseParagraphs(block: string): string[] {
   return block
-    .split(/\n/)
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .slice(0, maxLines);
-}
-
-function splitChatTurns(
-  turns: readonly DiaryChatTurn[],
-  visibleMax?: number,
-): { head: readonly DiaryChatTurn[]; tail: readonly DiaryChatTurn[] } {
-  const n = turns.length;
-  const cap = visibleMax === undefined ? n : Math.min(Math.max(visibleMax, 0), n);
-  return { head: turns.slice(0, cap), tail: turns.slice(cap) };
+    .split(/\n\n+/)
+    .map((p) =>
+      p
+        .replace(/\s*\n\s*/g, " ")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean);
 }
 
 /** 채팅 예시 시간 간격(시각 연출용·실제 시간 아님) */
@@ -47,12 +42,10 @@ function messengerTurnTime(ix: number): string {
 
 function EducationMessengerThread({
   episodeId,
-  head,
-  tail,
+  turns,
 }: {
   episodeId: string;
-  head: readonly DiaryChatTurn[];
-  tail: readonly DiaryChatTurn[];
+  turns: readonly DiaryChatTurn[];
 }) {
   function renderBubble(turn: DiaryChatTurn, globalIx: number) {
     const isFox = turn.speaker === "fox";
@@ -77,21 +70,11 @@ function EducationMessengerThread({
     );
   }
 
-  let runningIx = 0;
-
   return (
     <section className="edu-msgSection" aria-label="메신저 대화 예시">
       <div className="edu-msgPhone" role="list">
-        {head.map((turn) => renderBubble(turn, runningIx++))}
+        {turns.map((turn, i) => renderBubble(turn, i))}
       </div>
-      {tail.length > 0 ? (
-        <details className="edu-msgMore dq-detailsMore dq-detailsMore--muted dq-detailsMore--tight">
-          <summary>이어지는 메시지</summary>
-          <div className="edu-msgPhone edu-msgPhone--more" role="list">
-            {tail.map((turn) => renderBubble(turn, runningIx++))}
-          </div>
-        </details>
-      ) : null}
     </section>
   );
 }
@@ -338,7 +321,6 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
     setRevealed(true);
   }
 
-  const { head: chatHead, tail: chatTail } = splitChatTurns(episode.chatExample, episode.chatVisibleTurns);
   const fieldsetId = `${baseId}-choices`;
   const imageQuiz = episodeHasComicImages(episode);
 
@@ -483,12 +465,12 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
             <h4 id={`${baseId}-pick`} className="rc-blockTitle">
               {CARD_TITLE_PICK}
             </h4>
-            <p className="rc-bodyLine">
+            <p className="rc-bodyLine rc-bodyLead">
               {choice + 1}컷을 먼저 멈추려고 골랐어요.
             </p>
-            {snippetLines(episode.resultPickMomentByCut[choice], 2).map((line, ix) => (
-              <p key={`${episode.id}-pick-${ix}`} className="rc-bodyLine">
-                {line}
+            {proseParagraphs(episode.resultPickMomentByCut[choice]).map((para, ix) => (
+              <p key={`${episode.id}-pick-${ix}`} className="rc-bodyLine rc-proseParagraph">
+                {para}
               </p>
             ))}
           </section>
@@ -497,9 +479,9 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
             <h4 id={`${baseId}-why`} className="rc-blockTitle">
               {CARD_TITLE_WHY}
             </h4>
-            {snippetLines(episode.resultWhyStopBrief, 3).map((line, ix) => (
-              <p key={`${episode.id}-why-${ix}`} className="rc-bodyLine">
-                {line}
+            {proseParagraphs(episode.resultWhyStopBrief).map((para, ix) => (
+              <p key={`${episode.id}-why-${ix}`} className="rc-bodyLine rc-proseParagraph">
+                {para}
               </p>
             ))}
           </section>
@@ -508,7 +490,7 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
             <h4 id={`${baseId}-chat`} className="rc-blockTitle">
               {CARD_TITLE_CHAT}
             </h4>
-            <EducationMessengerThread episodeId={episode.id} head={chatHead} tail={chatTail} />
+            <EducationMessengerThread episodeId={episode.id} turns={episode.chatExample} />
           </section>
 
           <section className="rc-block" aria-labelledby={`${baseId}-peer`}>
@@ -516,9 +498,9 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
               {CARD_TITLE_PEER}
             </h4>
             <div className="rc-peerQuote">
-              {snippetLines(episode.peerTalkPrompt, 3).map((line, ix) => (
+              {proseParagraphs(episode.peerTalkPrompt).map((para, ix) => (
                 <p key={`${episode.id}-peer-${ix}`} className="rc-peerQuoteLine">
-                  {line}
+                  {para}
                 </p>
               ))}
             </div>
