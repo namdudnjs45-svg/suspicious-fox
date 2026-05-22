@@ -3,6 +3,7 @@ import {
   type DiaryChatTurn,
   type DiaryComicSceneType,
   type DiaryEpisode,
+  type ResultEducationBlock,
   resolveDiaryComicPanelSrc,
   resolvePublicAssetUrl,
   withPreferredLineBreaks,
@@ -16,19 +17,6 @@ const CARD_TITLE_WHY = "왜 멈춰야 했나요?";
 const CARD_TITLE_CHAT = "실제 대화 예시";
 const CARD_TITLE_PEER = "가까운 사람에게 말해보기";
 
-/** 의미 단위 문단만 나눕니다. 빈 줄(문단 구분)으로만 끊고, 문단 안 줄바꿈은 공백으로 합칩니다. */
-function proseParagraphs(block: string): string[] {
-  return block
-    .split(/\n\n+/)
-    .map((p) =>
-      p
-        .replace(/\s*\n\s*/g, " ")
-        .replace(/\s+/g, " ")
-        .trim(),
-    )
-    .filter(Boolean);
-}
-
 /** 채팅 예시 시간 간격(시각 연출용·실제 시간 아님) */
 function messengerTurnTime(ix: number): string {
   const baseMin = 14 * 60 + 28;
@@ -38,6 +26,19 @@ function messengerTurnTime(ix: number): string {
   const pm = h24 >= 12;
   const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
   return `${pm ? "오후" : "오전"} ${h12}:${String(min).padStart(2, "0")}`;
+}
+
+function NarrativeEducationBlock({ block }: { block: ResultEducationBlock }) {
+  return (
+    <>
+      <p className="rc-keyLine">{withPreferredLineBreaks(block.keyLine)}</p>
+      {block.subLines.map((line, ix) => (
+        <p key={`sub-${ix}`} className="rc-subText">
+          {withPreferredLineBreaks(line)}
+        </p>
+      ))}
+    </>
+  );
 }
 
 function EducationMessengerThread({
@@ -465,25 +466,14 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
             <h4 id={`${baseId}-pick`} className="rc-blockTitle">
               {CARD_TITLE_PICK}
             </h4>
-            <p className="rc-bodyLine rc-bodyLead">
-              {choice + 1}컷을 먼저 멈추려고 골랐어요.
-            </p>
-            {proseParagraphs(episode.resultPickMomentByCut[choice]).map((para, ix) => (
-              <p key={`${episode.id}-pick-${ix}`} className="rc-bodyLine rc-proseParagraph">
-                {para}
-              </p>
-            ))}
+            <NarrativeEducationBlock block={episode.resultPickMomentByCut[choice]} />
           </section>
 
           <section className="rc-block" aria-labelledby={`${baseId}-why`}>
             <h4 id={`${baseId}-why`} className="rc-blockTitle">
               {CARD_TITLE_WHY}
             </h4>
-            {proseParagraphs(episode.resultWhyStopBrief).map((para, ix) => (
-              <p key={`${episode.id}-why-${ix}`} className="rc-bodyLine rc-proseParagraph">
-                {para}
-              </p>
-            ))}
+            <NarrativeEducationBlock block={episode.resultWhyStopBrief} />
           </section>
 
           <section className="rc-block" aria-labelledby={`${baseId}-chat`}>
@@ -498,15 +488,15 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
               {CARD_TITLE_PEER}
             </h4>
             <div className="rc-peerQuote">
-              {proseParagraphs(episode.peerTalkPrompt).map((para, ix) => (
-                <p key={`${episode.id}-peer-${ix}`} className="rc-peerQuoteLine">
-                  {para}
+              {episode.peerTalkLines.map((line, ix) => (
+                <p key={`${episode.id}-peer-${ix}`} className={ix === 0 ? "rc-keyLine" : "rc-subText"}>
+                  {withPreferredLineBreaks(line)}
                 </p>
               ))}
             </div>
           </section>
 
-          <p className="rc-closing dq-unifiedClosingFooter">{episode.closingMessage}</p>
+          <p className="rc-closing rc-subText dq-unifiedClosingFooter">{withPreferredLineBreaks(episode.closingMessage)}</p>
 
           <EpisodeFeedbackMiniCard episodeId={episode.id} />
 
@@ -530,7 +520,7 @@ export function DiaryComicQuiz({ episode, onBack }: DiaryComicQuizProps) {
 
       {!(revealed && choice !== null) ? (
         <aside className="dq-safeTailBanner" role="note">
-          <p className="dq-safeTailText">{episode.closingMessage}</p>
+          <p className="dq-safeTailText">{withPreferredLineBreaks(episode.closingMessage)}</p>
         </aside>
       ) : null}
     </section>

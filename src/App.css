@@ -4252,26 +4252,36 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   line-break: strict;
 }
 
-.rc-bodyLine {
-  margin: 0 0 7px;
-  font-size: 13px;
+.rc-keyLine {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.032em;
+  color: rgba(58, 44, 32, 0.96);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
+}
+
+.rc-subText {
+  margin: 0 0 10px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.52;
-  letter-spacing: -0.028em;
+  line-height: 1.55;
+  letter-spacing: -0.026em;
   color: rgba(58, 44, 32, 0.94);
+  opacity: 0.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 
-.rc-bodyLead {
-  font-weight: 800;
-  color: rgba(72, 45, 25, 0.96);
+.rc-block .rc-subText:last-child {
+  margin-bottom: 0;
 }
 
-.rc-proseParagraph {
-  margin-bottom: 11px;
-  line-height: 1.62;
-}
-
-.rc-bodyLine:last-child {
+.rc-block .rc-keyLine:last-child {
   margin-bottom: 0;
 }
 
@@ -4283,21 +4293,22 @@ h1.mvp-hubTitle.mvp-hubLineTitle {
   border: 1px dashed rgba(251, 146, 60, 0.34);
 }
 
-.rc-peerQuoteLine {
-  margin: 0 0 6px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.52;
-  letter-spacing: -0.028em;
-  color: rgba(72, 50, 32, 0.94);
+.rc-peerQuote .rc-keyLine {
+  margin-bottom: 8px;
 }
 
-.rc-peerQuoteLine:last-child {
+.rc-peerQuote .rc-subText:last-child {
   margin-bottom: 0;
 }
 
 .rc-closing {
   margin-top: 10px;
+}
+
+.rc-closing.dq-unifiedClosingFooter {
+  opacity: 0.88;
+  font-weight: 700;
+  letter-spacing: -0.026em;
 }
 
 .edu-msgSection {
