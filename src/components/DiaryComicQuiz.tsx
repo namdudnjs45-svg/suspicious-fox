@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   type DiaryChatTurn,
   type DiaryComicSceneType,
@@ -70,10 +70,15 @@ function ComicPanelImage({
   const [broken, setBroken] = useState(false);
   const wm = SCENE_WATERMARK[sceneType];
 
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
   return (
     <div className={`comic-panel-image-wrap${broken ? " comic-panel-image-wrap--placeholder" : ""}`}>
       {!broken ? (
         <img
+          key={src}
           src={src}
           alt={alt}
           className="comic-panel-image"

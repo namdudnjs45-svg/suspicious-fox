@@ -81,6 +81,12 @@ export const MVP_CLOSING_LINE =
 
 export const DIARY_COMIC_IMAGE_MAP: Readonly<Record<string, string>> = {};
 
+/** Vite 배포 시 `public/scenarios/` → URL `/scenarios/파일명.png` */
+export function scenarioComicImg(fileName: string): string {
+  const name = fileName.replace(/^\/+/, "").replace(/^scenarios\//, "");
+  return `/scenarios/${name}`;
+}
+
 export function resolvePublicAssetUrl(path: string): string {
   const rel = path.replace(/^\/+/, "");
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
@@ -110,15 +116,15 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
     title: "법원 전화를 받은 여우",
     subtitle: "어떻게 멈춰야 할까요?",
     comicImages: [
-      "/diary-comics/court-call/court-v2-01.png",
-      "/diary-comics/court-call/court-v2-02.png",
-      "/diary-comics/court-call/court-v2-03.png",
-      "/diary-comics/court-call/court-v2-04.png",
+      scenarioComicImg("court-v2-01.png"),
+      scenarioComicImg("court-v2-02.png"),
+      scenarioComicImg("court-v2-03.png"),
+      scenarioComicImg("court-v2-04.png"),
     ] as const,
     panels: [
       {
         imageKey: "court-panel-01",
-        imageSrc: "/diary-comics/court-call/court-v2-01.png",
+        imageSrc: scenarioComicImg("court-v2-01.png"),
         sceneType: "phone",
         caption: "발신처를 기관이라고만 밝히며 붙잡는 첫 줄.",
         stripSummary: "법원에서 등기를 보낸다고 해요.",
@@ -129,7 +135,7 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
       },
       {
         imageKey: "court-panel-02",
-        imageSrc: "/diary-comics/court-call/court-v2-02.png",
+        imageSrc: scenarioComicImg("court-v2-02.png"),
         sceneType: "link",
         caption: "공식이라는 말과 함께 인터넷 링크 접속부터 시키는 줄.",
         stripSummary: "집에 있는 시간을 물어봐요.",
@@ -141,7 +147,7 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
       },
       {
         imageKey: "court-panel-03",
-        imageSrc: "/diary-comics/court-call/court-v2-03.png",
+        imageSrc: scenarioComicImg("court-v2-03.png"),
         sceneType: "privateInfo",
         caption: "본인 정보를 입력 또는 제출하게 만드는 단계.",
         stripSummary: "온라인 수령 링크를 보내요.",
@@ -151,7 +157,7 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
       },
       {
         imageKey: "court-panel-04",
-        imageSrc: "/diary-comics/court-call/court-v2-04.png",
+        imageSrc: scenarioComicImg("court-v2-04.png"),
         sceneType: "pressure",
         caption: "시한과 불이익으로 속도부터 내게 만드는 줄.",
         stripSummary: "개인정보 입력을 유도해요.",
@@ -213,10 +219,10 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
     title: "티켓을 싸게 산 여우",
     subtitle: "어떻게 멈춰야 할까요?",
     comicImages: [
-      "/diary-comics/ticket-01.png",
-      "/diary-comics/ticket-02.png",
-      "/diary-comics/ticket-03.png",
-      "/diary-comics/ticket-04.png",
+      scenarioComicImg("ticket-01.png"),
+      scenarioComicImg("ticket-02.png"),
+      scenarioComicImg("ticket-03.png"),
+      scenarioComicImg("ticket-04.png"),
     ] as const,
     panels: [
       {
@@ -314,10 +320,10 @@ export const DIARY_EPISODES: readonly DiaryEpisode[] = [
     title: "싸게 올린 물건에 혹한 여우",
     subtitle: "어떻게 멈춰야 할까요?",
     comicImages: [
-      "/diary-comics/family-01.png",
-      "/diary-comics/family-02.png",
-      "/diary-comics/family-03.png",
-      "/diary-comics/family-04.png",
+      scenarioComicImg("item-01.png"),
+      scenarioComicImg("item-02.png"),
+      scenarioComicImg("item-03.png"),
+      scenarioComicImg("item-04.png"),
     ] as const,
     panels: [
       {
