@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --font-app: "Gowun Dodum", system-ui, sans-serif;
+  --font-title: "Gowun Dodum", system-ui, sans-serif;
+
+  --sf-orange: #f97316;
+  --sf-orange-soft: rgba(249, 115, 22, 0.15);
+  --sf-orange-border: rgba(249, 115, 22, 0.32);
+  --sf-cream: #fffbeb;
+  --sf-cream-deep: #fff7dc;
+  --sf-yellow-soft: #fff9e6;
+  --sf-text: #3f3f46;
+  --sf-heading: #1c1917;
+  --sf-card-border: rgba(251, 191, 36, 0.35);
+  --sf-shadow-soft: 0 4px 20px rgba(249, 115, 22, 0.08);
+}
+
+html {
+  font-family: var(--font-app);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  background: #f4eadb;
+  color: var(--sf-text);
+  font-family: var(--font-app);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+#root {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  min-height: 100svh;
+  overflow: visible;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
